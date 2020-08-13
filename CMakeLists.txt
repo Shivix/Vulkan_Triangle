@@ -7,14 +7,16 @@ set(INCLUDE
         include/vulkanTriangle.hpp
         include/graphicsPipeline.hpp
         include/vulkanInstance.hpp
-        include/swapChain.hpp)
+        include/swapChain.hpp
+        include/commandBuffer.hpp)
 
 set(SRC
         src/main.cpp
         src/vulkanTriangle.cpp
         src/graphicsPipeline.cpp
         src/vulkanInstance.cpp
-        src/swapChain.cpp)
+        src/swapChain.cpp
+        src/commandBuffer.cpp)
 
 find_package(Boost REQUIRED)
 find_package(Vulkan REQUIRED)
