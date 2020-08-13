@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <algorithm>
 #include "graphicsPipeline.hpp"
+#include "commandBuffer.hpp"
 
 class vulkanTriangle{ // TODO: fix style TODO: go through tutorial again and add more comments TODO: rename and add another class
     const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
@@ -22,9 +23,6 @@ public:
 private:
     
     std::vector<vk::ImageView> swapChainImageViews;
-    std::vector<vk::Framebuffer> swapChainFramebuffers;
-    vk::CommandPool commandPool{};
-    std::vector<vk::CommandBuffer> commandBuffers;
     std::vector<vk::Semaphore> imageAvailableSemaphores;
     std::vector<vk::Semaphore> renderFinishedSemaphores;
     std::vector<vk::Fence> inFlightFences;
@@ -35,11 +33,9 @@ private:
     vulkanInstance instance;
     swapChain p_swapChain = swapChain(&instance); // TODO: rename stuff
     graphicsPipeline pipeline = graphicsPipeline(p_swapChain, &instance.m_device);
+    commandBuffer m_commandBuffer = commandBuffer(&instance, &pipeline);
     
-    void 
-    createCommandBuffers();
-    void
-    createCommandPool();
+    
     void 
     createFramebuffers();
     void 

@@ -12,69 +12,14 @@ vulkanTriangle::~vulkanTriangle() noexcept{
         instance.m_device.destroySemaphore(imageAvailableSemaphores[i], nullptr);
         instance.m_device.destroyFence(inFlightFences[i], nullptr);
     }
-    instance.m_device.destroyCommandPool(commandPool, nullptr);
     
-    for (auto framebuffer : swapChainFramebuffers) {
-        instance.m_device.destroyFramebuffer(framebuffer, nullptr);
-    }
     for (auto imageView : swapChainImageViews) {
         instance.m_device.destroyImageView(imageView, nullptr);
     }
 }
 
-void vulkanTriangle::createCommandBuffers(){
-    commandBuffers.resize(swapChainFramebuffers.size());
-
-    vk::CommandBufferAllocateInfo allocInfo{
-            commandPool,
-            vk::CommandBufferLevel::ePrimary,
-            static_cast<uint32_t>(commandBuffers.size())
-    };
-    
-
-    if (instance.m_device.allocateCommandBuffers(&allocInfo, commandBuffers.data()) != vk::Result::eSuccess) {
-        throw std::runtime_error("failed to allocate command buffers!");
-    }
-
-    for(size_t i = 0; i < commandBuffers.size(); i++) {
-        vk::CommandBufferBeginInfo beginInfo{};
-        if (commandBuffers[i].begin(&beginInfo) != vk::Result::eSuccess) {
-            throw std::runtime_error("failed to begin recording command buffer!");
-        }
-        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
-        vk::RenderPassBeginInfo renderPassInfo{
-            pipeline.renderPass,
-            swapChainFramebuffers[i],
-            {0, 0},
-            1,
-            reinterpret_cast<const vk::ClearValue*>(&clearColor)
-        };
-
-        commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
-        commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.pipeline);
-        commandBuffers[i].draw(3, 1, 0, 0);
-        commandBuffers[i].endRenderPass();
-        commandBuffers[i].end();
-        //if (commandBuffers[i].end() != vk::Result::eSuccess) {
-        //    throw std::runtime_error("failed to record command buffer!");
-        //}
-    }
-}
-
-void vulkanTriangle::createCommandPool(){
-    vulkanInstance::QueueFamilyIndices queueFamilyIndices = instance.findQueueFamilies(instance.physicalDevice);
-
-    vk::CommandPoolCreateInfo poolInfo{
-    vk::CommandPoolCreateFlags{0},
-    queueFamilyIndices.graphicsFamily.value()
-    };
-    if (instance.m_device.createCommandPool(&poolInfo, nullptr, &commandPool) != vk::Result::eSuccess) { // currently only sets the command buffers at the beginning
-        throw std::runtime_error("failed to create command pool!");
-    }
-}
-
 void vulkanTriangle::createFramebuffers(){
-    swapChainFramebuffers.resize(swapChainImageViews.size());
+    m_commandBuffer.swapChainFramebuffers.resize(swapChainImageViews.size());
 
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
         vk::ImageView attachments = { // was an array but should be okay now
@@ -90,7 +35,7 @@ void vulkanTriangle::createFramebuffers(){
             p_swapChain.swapChainExtent.height,
             1               // layers
         };
-        if (instance.m_device.createFramebuffer(&framebufferInfo, nullptr, &swapChainFramebuffers[i]) != vk::Result::eSuccess) {
+        if (instance.m_device.createFramebuffer(&framebufferInfo, nullptr, &m_commandBuffer.swapChainFramebuffers[i]) != vk::Result::eSuccess) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
@@ -166,7 +111,7 @@ void vulkanTriangle::drawFrame(){
     submitInfo.pWaitSemaphores = &waitSemaphores;
     submitInfo.pWaitDstStageMask = &waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+    submitInfo.pCommandBuffers = &m_commandBuffer.commandBuffers[imageIndex];
 
     vk::Semaphore signalSemaphores = renderFinishedSemaphores[currentFrame];
     
@@ -204,8 +149,6 @@ void vulkanTriangle::drawFrame(){
 void vulkanTriangle::initVulkan(){ // vulkan class for raii? (vulkanInstance?)
     createImageViews();
     createFramebuffers();
-    createCommandPool();
-    createCommandBuffers();
     createSyncObjects();
 }
 
@@ -234,13 +177,13 @@ void vulkanTriangle::refreshSwapChain(){ // TODO: clean up is temporary
     createImageViews();
     pipeline.refresh(p_swapChain);
     createFramebuffers();
-    createCommandBuffers();
+    //createCommandBuffers();
     
-    for (auto framebuffer : swapChainFramebuffers) {
+    for (auto framebuffer : m_commandBuffer.swapChainFramebuffers) {
         instance.m_device.destroyFramebuffer(framebuffer, nullptr);
     }
-    instance.m_device.freeCommandBuffers(commandPool, static_cast<uint32_t>(commandBuffers.size()), 
-                                         commandBuffers.data());
+    instance.m_device.freeCommandBuffers(m_commandBuffer.commandPool, static_cast<uint32_t>(m_commandBuffer.commandBuffers.size()),
+                                         m_commandBuffer.commandBuffers.data());
     for (auto imageView : swapChainImageViews) {
         instance.m_device.destroyImageView(imageView, nullptr);
     }
