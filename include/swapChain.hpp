@@ -5,7 +5,7 @@
 
 class swapChain{
 public:
-    swapChain(vulkanInstance*);
+    explicit swapChain(vulkanInstance*);
     ~swapChain();
 
     vulkanInstance* instance;
