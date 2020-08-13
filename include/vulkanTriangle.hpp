@@ -30,9 +30,10 @@ private:
     std::vector<vk::Fence> inFlightFences;
     std::vector<vk::Fence> imagesInFlight;
     std::size_t currentFrame = 0;
+    bool framebufferResized = false;
     
     vulkanInstance instance;
-    swapChain p_swapChain = swapChain(&instance);
+    swapChain p_swapChain = swapChain(&instance); // TODO: rename stuff
     graphicsPipeline pipeline = graphicsPipeline(p_swapChain, &instance.m_device);
     
     void 
@@ -49,9 +50,13 @@ private:
     drawFrame();
     void 
     initVulkan();
+    static void
+    framebufferResizeCallback(GLFWwindow*, int, int);
     
     void 
     mainLoop();
+    void
+    refreshSwapChain();
 };
 
 #endif //VULKANTEST_VULKANTRIANGLE_HPP

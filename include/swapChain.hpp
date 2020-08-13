@@ -22,6 +22,7 @@ public:
     chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>&);
     void
     createSwapChain();
+    void refresh();
     
     
     

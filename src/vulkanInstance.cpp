@@ -12,7 +12,8 @@ vulkanInstance::vulkanInstance(){
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // prevents resizing of window
 
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-
+    glfwSetWindowUserPointer(window, this);
+    
     createInstance();
     setupDebugMessenger();
     createSurface();

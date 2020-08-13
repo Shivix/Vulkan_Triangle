@@ -1,7 +1,9 @@
 #include <fstream>
 #include "../include/vulkanTriangle.hpp"
 
-vulkanTriangle::vulkanTriangle()= default;
+vulkanTriangle::vulkanTriangle(){
+    glfwSetFramebufferSizeCallback(instance.window, framebufferResizeCallback);
+}
 
 vulkanTriangle::~vulkanTriangle() noexcept{
     
@@ -11,6 +13,7 @@ vulkanTriangle::~vulkanTriangle() noexcept{
         instance.m_device.destroyFence(inFlightFences[i], nullptr);
     }
     instance.m_device.destroyCommandPool(commandPool, nullptr);
+    
     for (auto framebuffer : swapChainFramebuffers) {
         instance.m_device.destroyFramebuffer(framebuffer, nullptr);
     }
@@ -139,7 +142,14 @@ void vulkanTriangle::drawFrame(){
     instance.m_device.waitForFences(1, &inFlightFences[currentFrame], true, UINT64_MAX);
     
     uint32_t imageIndex;
-    instance.m_device.acquireNextImageKHR(p_swapChain.m_swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], nullptr, &imageIndex);
+    vk::Result result = instance.m_device.acquireNextImageKHR(p_swapChain.m_swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], nullptr, &imageIndex);
+
+    if (result == vk::Result::eErrorOutOfDateKHR) {
+        refreshSwapChain();
+        return;
+    } else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
     
     if (imagesInFlight[imageIndex] != static_cast<vk::Fence>(nullptr)) { // seems weird
         instance.m_device.waitForFences(1, &imagesInFlight[imageIndex], true, UINT64_MAX);
@@ -179,8 +189,14 @@ void vulkanTriangle::drawFrame(){
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
-    instance.presentQueue.presentKHR(&presentInfo);
-    instance.presentQueue.waitIdle(); // can possibly be removed
+    result = instance.presentQueue.presentKHR(&presentInfo);
+
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || framebufferResized) {
+        framebufferResized = false;
+        refreshSwapChain();
+    } else if (result != vk::Result::eSuccess) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
@@ -191,6 +207,11 @@ void vulkanTriangle::initVulkan(){ // vulkan class for raii? (vulkanInstance?)
     createCommandPool();
     createCommandBuffers();
     createSyncObjects();
+}
+
+void vulkanTriangle::framebufferResizeCallback(GLFWwindow* window, int width, int height){
+    auto app = reinterpret_cast<vulkanTriangle*>(glfwGetWindowUserPointer(window));
+    app->framebufferResized = true;
 }
 
 void vulkanTriangle::mainLoop(){
@@ -204,4 +225,23 @@ void vulkanTriangle::mainLoop(){
 void vulkanTriangle::run() {
     initVulkan();
     mainLoop();
+}
+
+void vulkanTriangle::refreshSwapChain(){ // TODO: clean up is temporary
+    instance.m_device.waitIdle();
+    // swapChain newSwapChain;
+    p_swapChain.refresh();
+    createImageViews();
+    pipeline.refresh(p_swapChain);
+    createFramebuffers();
+    createCommandBuffers();
+    
+    for (auto framebuffer : swapChainFramebuffers) {
+        instance.m_device.destroyFramebuffer(framebuffer, nullptr);
+    }
+    instance.m_device.freeCommandBuffers(commandPool, static_cast<uint32_t>(commandBuffers.size()), 
+                                         commandBuffers.data());
+    for (auto imageView : swapChainImageViews) {
+        instance.m_device.destroyImageView(imageView, nullptr);
+    }
 }

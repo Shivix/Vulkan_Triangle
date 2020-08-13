@@ -13,21 +13,24 @@ public:
     graphicsPipeline(const swapChain&, vk::Device*);
     ~graphicsPipeline() noexcept; // r of 3
     
+    void 
+    refresh(const swapChain&);
+    
     vk::RenderPass renderPass{};
     vk::Pipeline pipeline{};
     vk::Device* device;
 private:
     vk::PipelineLayout pipelineLayout{};
 
-    void
-    createGraphicsPipeline(const swapChain&);
-    void
-    createRenderPass(const swapChain&);
     vk::ShaderModule
     createShaderModule(const std::vector<char>&) const;
     static std::vector<char>
     readFile(const std::string&);
     
+    void
+    createGraphicsPipeline(const swapChain&);
+    void
+    createRenderPass(const swapChain&);
     
     
     

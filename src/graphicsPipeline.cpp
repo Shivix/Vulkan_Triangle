@@ -185,3 +185,13 @@ std::vector<char> graphicsPipeline::readFile(const std::string& filename){
     file.close();
     return buffer;
 }
+
+void graphicsPipeline::refresh(const swapChain& swapChain){ // TODO: refresh whole thing? copy constructor? then destruct
+
+    createRenderPass(swapChain);
+    createGraphicsPipeline(swapChain);
+
+    device->destroyPipeline(pipeline, nullptr);
+    device->destroyPipelineLayout(pipelineLayout, nullptr);
+    device->destroyRenderPass(renderPass, nullptr);
+}
