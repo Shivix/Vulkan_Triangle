@@ -32,7 +32,7 @@ private:
     
     vulkanInstance instance;
     swapChain p_swapChain = swapChain(&instance); // TODO: rename stuff
-    graphicsPipeline pipeline = graphicsPipeline(p_swapChain, &instance.m_device);
+    graphicsPipeline pipeline = graphicsPipeline(&instance, p_swapChain);
     commandBuffer m_commandBuffer = commandBuffer(&instance, &pipeline);
     
     

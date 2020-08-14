@@ -6,11 +6,11 @@
 #include "../include/swapChain.hpp"
 
 
-//extern VkDevice m_device;
+class vulkanInstance;
 
 class graphicsPipeline{
 public:
-    graphicsPipeline(const swapChain&, vk::Device*);
+    graphicsPipeline(vulkanInstance*, const swapChain&);
     ~graphicsPipeline() noexcept; // r of 3
     
     void 
@@ -18,7 +18,7 @@ public:
     
     vk::RenderPass renderPass{};
     vk::Pipeline pipeline{};
-    vk::Device* device;
+    vulkanInstance* instance;
 private:
     vk::PipelineLayout pipelineLayout{};
 

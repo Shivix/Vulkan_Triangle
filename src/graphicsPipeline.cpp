@@ -1,16 +1,16 @@
 #include <fstream>
 #include "../include/graphicsPipeline.hpp"
 
-graphicsPipeline::graphicsPipeline(const swapChain& swapChain, vk::Device* device):
-device{device}{
+graphicsPipeline::graphicsPipeline(vulkanInstance* instance, const swapChain& swapChain):
+instance(instance){
     createRenderPass(swapChain);
     createGraphicsPipeline(swapChain);
 }
 
 graphicsPipeline::~graphicsPipeline() noexcept{
-    device->destroyPipeline(pipeline, nullptr);
-    device->destroyPipelineLayout(pipelineLayout, nullptr);
-    device->destroyRenderPass(renderPass, nullptr);
+    instance->m_device.destroyPipeline(pipeline, nullptr);
+    instance->m_device.destroyPipelineLayout(pipelineLayout, nullptr);
+    instance->m_device.destroyRenderPass(renderPass, nullptr);
 }
 
 void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
@@ -88,7 +88,7 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
 
-    if (device->createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout) != vk::Result::eSuccess) {
+    if (instance->m_device.createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
@@ -110,12 +110,12 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     pipelineInfo.basePipelineIndex = -1; // Optional
     //pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 
-    if (device->createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &pipeline) != vk::Result::eSuccess) {
+    if (instance->m_device.createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &pipeline) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
-    device->destroyShaderModule(fragShaderModule, nullptr); // FIXME: destroying after possible exceptions?? baaaaad
-    device->destroyShaderModule(vertShaderModule, nullptr);
+    instance->m_device.destroyShaderModule(fragShaderModule, nullptr); // FIXME: destroying after possible exceptions?? baaaaad
+    instance->m_device.destroyShaderModule(vertShaderModule, nullptr);
 }
 
 void graphicsPipeline::createRenderPass(const swapChain& swapChain){
@@ -154,7 +154,7 @@ void graphicsPipeline::createRenderPass(const swapChain& swapChain){
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (device->createRenderPass(&renderPassInfo, nullptr, &renderPass) != vk::Result::eSuccess) {
+    if (instance->m_device.createRenderPass(&renderPassInfo, nullptr, &renderPass) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create render pass!");
     }
 }
@@ -165,7 +165,7 @@ vk::ShaderModule graphicsPipeline::createShaderModule(const std::vector<char>& c
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
     vk::ShaderModule shaderModule;
-    if (device->createShaderModule(&createInfo, nullptr, &shaderModule) != vk::Result::eSuccess) {
+    if (instance->m_device.createShaderModule(&createInfo, nullptr, &shaderModule) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create shader module!");
     }
     return shaderModule;
@@ -191,7 +191,7 @@ void graphicsPipeline::refresh(const swapChain& swapChain){ // TODO: refresh who
     createRenderPass(swapChain);
     createGraphicsPipeline(swapChain);
 
-    device->destroyPipeline(pipeline, nullptr);
-    device->destroyPipelineLayout(pipelineLayout, nullptr);
-    device->destroyRenderPass(renderPass, nullptr);
+    instance->m_device.destroyPipeline(pipeline, nullptr);
+    instance->m_device.destroyPipelineLayout(pipelineLayout, nullptr);
+    instance->m_device.destroyRenderPass(renderPass, nullptr);
 }
