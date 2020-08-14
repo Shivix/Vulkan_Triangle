@@ -6,10 +6,11 @@
 
 class vulkanInstance;
 class graphicsPipeline;
+class swapChain;
 
 class commandBuffer{
 public:
-    commandBuffer(vulkanInstance*, graphicsPipeline*);
+    commandBuffer(vulkanInstance*, graphicsPipeline*, swapChain*);
     ~commandBuffer() noexcept;
     
     std::vector<vk::Framebuffer> swapChainFramebuffers;
@@ -18,12 +19,14 @@ public:
 private:
     vulkanInstance* instance;
     graphicsPipeline* pipeline;
+    swapChain* m_swapChain;
     
     void
     createCommandBuffers();
     void
     createCommandPool();
-    
+    void
+    createFramebuffers();
     
 };
 

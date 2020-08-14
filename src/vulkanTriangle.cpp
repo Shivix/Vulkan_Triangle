@@ -13,53 +13,8 @@ vulkanTriangle::~vulkanTriangle() noexcept{
         instance.m_device.destroyFence(inFlightFences[i], nullptr);
     }
     
-    for (auto imageView : swapChainImageViews) {
+    for (auto imageView : p_swapChain.swapChainImageViews) {
         instance.m_device.destroyImageView(imageView, nullptr);
-    }
-}
-
-void vulkanTriangle::createFramebuffers(){
-    m_commandBuffer.swapChainFramebuffers.resize(swapChainImageViews.size());
-
-    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-        vk::ImageView attachments = { // was an array but should be okay now
-                swapChainImageViews[i]
-        };
-
-        vk::FramebufferCreateInfo framebufferInfo{
-            vk::FramebufferCreateFlags{},
-            pipeline.renderPass,
-            1,      // attachment count
-            &attachments,
-            p_swapChain.swapChainExtent.width,
-            p_swapChain.swapChainExtent.height,
-            1               // layers
-        };
-        if (instance.m_device.createFramebuffer(&framebufferInfo, nullptr, &m_commandBuffer.swapChainFramebuffers[i]) != vk::Result::eSuccess) {
-            throw std::runtime_error("failed to create framebuffer!");
-        }
-    }
-}
-
-void vulkanTriangle::createImageViews(){
-    swapChainImageViews.resize(p_swapChain.swapChainImages.size());
-    for (size_t i = 0; i < p_swapChain.swapChainImages.size(); i++) {
-        vk::ImageViewCreateInfo createInfo{ 
-            vk::ImageViewCreateFlags{},
-            p_swapChain.swapChainImages[i],
-            vk::ImageViewType::e2D, // how the image should be interpreted (1D, 2D, 3D and cube maps)
-            p_swapChain.swapChainImageFormat,
-            vk::ComponentMapping{vk::ComponentSwizzle::eIdentity,
-                                 vk::ComponentSwizzle::eIdentity,
-                                 vk::ComponentSwizzle::eIdentity,
-                                 vk::ComponentSwizzle::eIdentity},
-            vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}
-            
-        };
-        
-        if (instance.m_device.createImageView(&createInfo, nullptr, &swapChainImageViews[i]) != vk::Result::eSuccess) {
-            throw std::runtime_error("failed to create image views!");
-        }
     }
 }
 
@@ -144,14 +99,12 @@ void vulkanTriangle::drawFrame(){
 }
 
 void vulkanTriangle::initVulkan(){ // vulkan class for raii? (vulkanInstance?)
-    createImageViews();
-    createFramebuffers();
     createSyncObjects();
 }
 
 void vulkanTriangle::framebufferResizeCallback(GLFWwindow* window, int width, int height){
-    auto app = reinterpret_cast<vulkanTriangle*>(glfwGetWindowUserPointer(window));
-    app->framebufferResized = true;
+    //auto app = reinterpret_cast<vulkanTriangle*>(glfwGetWindowUserPointer(window));
+    //app->framebufferResized = true;
 }
 
 void vulkanTriangle::mainLoop(){
@@ -168,20 +121,20 @@ void vulkanTriangle::run() {
 }
 
 void vulkanTriangle::refreshSwapChain(){ // TODO: clean up is temporary
-    instance.m_device.waitIdle();
-    // swapChain newSwapChain;
-    p_swapChain.refresh();
-    createImageViews();
-    pipeline.refresh(p_swapChain);
-    createFramebuffers();
+    //instance.m_device.waitIdle();
+    //swapChain newSwapChain;
+    //p_swapChain.refresh();
+    //createImageViews();
+    //pipeline.refresh(p_swapChain);
+    //createFramebuffers();
     //createCommandBuffers();
-    
-    for (auto framebuffer : m_commandBuffer.swapChainFramebuffers) {
-        instance.m_device.destroyFramebuffer(framebuffer, nullptr);
-    }
-    instance.m_device.freeCommandBuffers(m_commandBuffer.commandPool, static_cast<uint32_t>(m_commandBuffer.commandBuffers.size()),
-                                         m_commandBuffer.commandBuffers.data());
-    for (auto imageView : swapChainImageViews) {
-        instance.m_device.destroyImageView(imageView, nullptr);
-    }
+    //
+    //for (auto framebuffer : m_commandBuffer.swapChainFramebuffers) {
+    //    instance.m_device.destroyFramebuffer(framebuffer, nullptr);
+    //}
+    //instance.m_device.freeCommandBuffers(m_commandBuffer.commandPool, static_cast<uint32_t>(m_commandBuffer.commandBuffers.size()),
+    //                                     m_commandBuffer.commandBuffers.data());
+    //for (auto imageView : p_swapChain.swapChainImageViews) {
+    //    instance.m_device.destroyImageView(imageView, nullptr);
+    //}
 }

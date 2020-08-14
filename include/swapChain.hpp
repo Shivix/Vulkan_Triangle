@@ -13,6 +13,7 @@ public:
     std::vector<vk::Image> swapChainImages{};
     vk::Extent2D swapChainExtent{};
     vk::Format swapChainImageFormat{vk::Format::eUndefined};
+    std::vector<vk::ImageView> swapChainImageViews;
     
     vk::Extent2D
     chooseSwapExtent(const vk::SurfaceCapabilitiesKHR&) const;
@@ -21,8 +22,11 @@ public:
     static vk::SurfaceFormatKHR
     chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>&);
     void
+    createImageViews();
+    void
     createSwapChain();
-    void refresh();
+    void 
+    refresh();
     
     
     

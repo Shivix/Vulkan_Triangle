@@ -3,6 +3,7 @@
 swapChain::swapChain(vulkanInstance* instance):
 instance(instance){
     createSwapChain();
+    createImageViews();
 }
 
 swapChain::~swapChain(){
@@ -42,6 +43,29 @@ vk::SurfaceFormatKHR swapChain::chooseSwapSurfaceFormat(const std::vector<vk::Su
     }
     return availableFormats[0];
 }
+
+void swapChain::createImageViews(){
+    swapChainImageViews.resize(swapChainImages.size());
+    for (size_t i = 0; i < swapChainImages.size(); i++) {
+        vk::ImageViewCreateInfo createInfo{
+                vk::ImageViewCreateFlags{},
+                swapChainImages[i],
+                vk::ImageViewType::e2D, // how the image should be interpreted (1D, 2D, 3D and cube maps)
+                swapChainImageFormat,
+                vk::ComponentMapping{vk::ComponentSwizzle::eIdentity,
+                                     vk::ComponentSwizzle::eIdentity,
+                                     vk::ComponentSwizzle::eIdentity,
+                                     vk::ComponentSwizzle::eIdentity},
+                vk::ImageSubresourceRange{vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}
+
+        };
+
+        if (instance->m_device.createImageView(&createInfo, nullptr, &swapChainImageViews[i]) != vk::Result::eSuccess) {
+            throw std::runtime_error("failed to create image views!");
+        }
+    }
+}
+
 
 void swapChain::createSwapChain() {
     vulkanInstance::SwapChainSupportDetails swapChainSupport = instance->querySwapChainSupport(instance->physicalDevice);

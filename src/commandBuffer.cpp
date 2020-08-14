@@ -2,9 +2,11 @@
 #include "../include/vulkanInstance.hpp"
 #include "../include/graphicsPipeline.hpp"
 
-commandBuffer::commandBuffer(vulkanInstance* instance, graphicsPipeline* pipeline):
+commandBuffer::commandBuffer(vulkanInstance* instance, graphicsPipeline* pipeline, swapChain* m_swapChain):
 instance(instance),
-pipeline(pipeline){
+pipeline(pipeline),
+m_swapChain(m_swapChain){
+    createFramebuffers();
     createCommandPool();
     createCommandBuffers();
 }
@@ -16,7 +18,6 @@ commandBuffer::~commandBuffer() noexcept{
         instance->m_device.destroyFramebuffer(framebuffer, nullptr);
     }
 }
-
 
 void commandBuffer::createCommandBuffers(){
     commandBuffers.resize(swapChainFramebuffers.size());
@@ -66,5 +67,28 @@ void commandBuffer::createCommandPool(){
     };
     if (instance->m_device.createCommandPool(&poolInfo, nullptr, &commandPool) != vk::Result::eSuccess) { // currently only sets the command buffers at the beginning
         throw std::runtime_error("failed to create command pool!");
+    }
+}
+
+void commandBuffer::createFramebuffers(){
+    swapChainFramebuffers.resize(m_swapChain->swapChainImageViews.size());
+
+    for (size_t i = 0; i < m_swapChain->swapChainImageViews.size(); i++) {
+        vk::ImageView attachments = { // was an array but should be okay now
+                m_swapChain->swapChainImageViews[i]
+        };
+
+        vk::FramebufferCreateInfo framebufferInfo{
+                vk::FramebufferCreateFlags{},
+                pipeline->renderPass,
+                1,      // attachment count
+                &attachments,
+                m_swapChain->swapChainExtent.width,
+                m_swapChain->swapChainExtent.height,
+                1               // layers
+        };
+        if (instance->m_device.createFramebuffer(&framebufferInfo, nullptr, &swapChainFramebuffers[i]) != vk::Result::eSuccess) {
+            throw std::runtime_error("failed to create framebuffer!");
+        }
     }
 }

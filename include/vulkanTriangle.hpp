@@ -22,7 +22,6 @@ public:
 
 private:
     
-    std::vector<vk::ImageView> swapChainImageViews;
     std::vector<vk::Semaphore> imageAvailableSemaphores;
     std::vector<vk::Semaphore> renderFinishedSemaphores;
     std::vector<vk::Fence> inFlightFences;
@@ -33,13 +32,9 @@ private:
     vulkanInstance instance;
     swapChain p_swapChain = swapChain(&instance); // TODO: rename stuff
     graphicsPipeline pipeline = graphicsPipeline(&instance, p_swapChain);
-    commandBuffer m_commandBuffer = commandBuffer(&instance, &pipeline);
+    commandBuffer m_commandBuffer = commandBuffer(&instance, &pipeline, &p_swapChain);
     
     
-    void 
-    createFramebuffers();
-    void 
-    createImageViews();
     void 
     createSyncObjects();
     void 
