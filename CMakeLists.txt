@@ -8,7 +8,8 @@ set(INCLUDE
         include/graphicsPipeline.hpp
         include/vulkanInstance.hpp
         include/swapChain.hpp
-        include/commandBuffer.hpp)
+        include/commandBuffer.hpp
+        include/swapChain.hpp)
 
 set(SRC
         src/main.cpp
@@ -16,7 +17,8 @@ set(SRC
         src/graphicsPipeline.cpp
         src/vulkanInstance.cpp
         src/swapChain.cpp
-        src/commandBuffer.cpp)
+        src/commandBuffer.cpp
+        src/syncObjects.cpp)
 
 find_package(Boost REQUIRED)
 find_package(Vulkan REQUIRED)
