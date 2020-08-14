@@ -101,22 +101,19 @@ void vulkanTriangle::drawFrame(){
     }
     imagesInFlight[imageIndex] = inFlightFences[currentFrame];
     
-    vk::SubmitInfo submitInfo{};
-    
     vk::Semaphore waitSemaphores = {imageAvailableSemaphores[currentFrame]};
-    
     vk::PipelineStageFlags waitStages = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = &waitSemaphores;
-    submitInfo.pWaitDstStageMask = &waitStages;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &m_commandBuffer.commandBuffers[imageIndex];
-
     vk::Semaphore signalSemaphores = renderFinishedSemaphores[currentFrame];
     
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &signalSemaphores;
+    vk::SubmitInfo submitInfo{
+    1,
+    &waitSemaphores,
+    &waitStages,
+    1,
+    &m_commandBuffer.commandBuffers[imageIndex],
+    1,
+    &signalSemaphores
+};
 
     instance.m_device.resetFences(1, &inFlightFences[currentFrame]);
 
