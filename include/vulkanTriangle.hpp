@@ -10,9 +10,9 @@
 #include <algorithm>
 #include "graphicsPipeline.hpp"
 #include "commandBuffer.hpp"
+#include "syncObjects.hpp"
 
 class vulkanTriangle{ // TODO: fix style TODO: go through tutorial again and add more comments TODO: rename and add another class
-    const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
     
 public:
     vulkanTriangle();
@@ -22,25 +22,17 @@ public:
 
 private:
     
-    std::vector<vk::Semaphore> imageAvailableSemaphores;
-    std::vector<vk::Semaphore> renderFinishedSemaphores;
-    std::vector<vk::Fence> inFlightFences;
-    std::vector<vk::Fence> imagesInFlight;
-    std::size_t currentFrame = 0;
-    bool framebufferResized = false;
+    std::size_t m_currentFrame = 0;
+    bool m_framebufferResized = false;
     
-    vulkanInstance instance;
-    swapChain p_swapChain = swapChain(&instance); // TODO: rename stuff
-    graphicsPipeline pipeline = graphicsPipeline(&instance, p_swapChain);
-    commandBuffer m_commandBuffer = commandBuffer(&instance, &pipeline, &p_swapChain);
+    vulkanInstance m_instance;
+    swapChain m_swapChain = swapChain(&m_instance); // TODO: rename stuff
+    graphicsPipeline m_pipeline = graphicsPipeline(&m_instance, m_swapChain);
+    commandBuffer m_commandBuffer = commandBuffer(&m_instance, &m_pipeline, &m_swapChain);
+    syncObjects m_syncobjects = syncObjects(&m_instance, &m_swapChain);
     
-    
-    void 
-    createSyncObjects();
     void 
     drawFrame();
-    void 
-    initVulkan();
     static void
     framebufferResizeCallback(GLFWwindow*, int, int);
     

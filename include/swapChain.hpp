@@ -9,7 +9,7 @@ public:
     ~swapChain();
 
     vulkanInstance* instance;
-    vk::SwapchainKHR m_swapChain{};
+    vk::SwapchainKHR swapChainVK{};
     std::vector<vk::Image> swapChainImages{};
     vk::Extent2D swapChainExtent{};
     vk::Format swapChainImageFormat{vk::Format::eUndefined};

@@ -3,19 +3,19 @@
 #include "../include/graphicsPipeline.hpp"
 
 commandBuffer::commandBuffer(vulkanInstance* instance, graphicsPipeline* pipeline, swapChain* m_swapChain):
-instance(instance),
-pipeline(pipeline),
-m_swapChain(m_swapChain){
+        m_instance(instance),
+        m_pipeline(pipeline),
+        m_swapChain(m_swapChain){
     createFramebuffers();
     createCommandPool();
     createCommandBuffers();
 }
 
 commandBuffer::~commandBuffer() noexcept{
-    instance->m_device.destroyCommandPool(commandPool, nullptr);
+    m_instance->logicalDevice.destroyCommandPool(commandPool, nullptr);
 
     for (auto framebuffer : swapChainFramebuffers) {
-        instance->m_device.destroyFramebuffer(framebuffer, nullptr);
+        m_instance->logicalDevice.destroyFramebuffer(framebuffer, nullptr);
     }
 }
 
@@ -29,7 +29,7 @@ void commandBuffer::createCommandBuffers(){
     };
 
 
-    if (instance->m_device.allocateCommandBuffers(&allocInfo, commandBuffers.data()) != vk::Result::eSuccess) {
+    if (m_instance->logicalDevice.allocateCommandBuffers(&allocInfo, commandBuffers.data()) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 
@@ -40,7 +40,7 @@ void commandBuffer::createCommandBuffers(){
         }
         VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
         vk::RenderPassBeginInfo renderPassInfo{
-                pipeline->renderPass,
+                m_pipeline->renderPass,
                 swapChainFramebuffers[i],
                 {0, 0},
                 1,
@@ -48,7 +48,7 @@ void commandBuffer::createCommandBuffers(){
         };
 
         commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
-        commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->pipeline);
+        commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline->pipelineVK);
         commandBuffers[i].draw(3, 1, 0, 0);
         commandBuffers[i].endRenderPass();
         commandBuffers[i].end();
@@ -59,13 +59,13 @@ void commandBuffer::createCommandBuffers(){
 }
 
 void commandBuffer::createCommandPool(){
-    vulkanInstance::QueueFamilyIndices queueFamilyIndices = instance->findQueueFamilies(instance->physicalDevice);
+    vulkanInstance::QueueFamilyIndices queueFamilyIndices = m_instance->findQueueFamilies(m_instance->physicalDevice);
 
     vk::CommandPoolCreateInfo poolInfo{
             vk::CommandPoolCreateFlags{0},
             queueFamilyIndices.graphicsFamily.value()
     };
-    if (instance->m_device.createCommandPool(&poolInfo, nullptr, &commandPool) != vk::Result::eSuccess) { // currently only sets the command buffers at the beginning
+    if (m_instance->logicalDevice.createCommandPool(&poolInfo, nullptr, &commandPool) != vk::Result::eSuccess) { // currently only sets the command buffers at the beginning
         throw std::runtime_error("failed to create command pool!");
     }
 }
@@ -80,14 +80,14 @@ void commandBuffer::createFramebuffers(){
 
         vk::FramebufferCreateInfo framebufferInfo{
                 vk::FramebufferCreateFlags{},
-                pipeline->renderPass,
+                m_pipeline->renderPass,
                 1,      // attachment count
                 &attachments,
                 m_swapChain->swapChainExtent.width,
                 m_swapChain->swapChainExtent.height,
                 1               // layers
         };
-        if (instance->m_device.createFramebuffer(&framebufferInfo, nullptr, &swapChainFramebuffers[i]) != vk::Result::eSuccess) {
+        if (m_instance->logicalDevice.createFramebuffer(&framebufferInfo, nullptr, &swapChainFramebuffers[i]) != vk::Result::eSuccess) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }

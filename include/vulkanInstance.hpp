@@ -24,7 +24,7 @@ public:
     GLFWwindow* window;
     vk::SurfaceKHR surface{};
     vk::PhysicalDevice physicalDevice = nullptr;
-    vk::Device m_device{};
+    vk::Device logicalDevice{};
     vk::Queue graphicsQueue{};
     vk::Queue presentQueue{};
     const std::vector<const char*> validationLayers{"VK_LAYER_KHRONOS_validation"}; // FIXME:

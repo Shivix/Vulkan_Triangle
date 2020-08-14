@@ -7,7 +7,7 @@ instance(instance){
 }
 
 swapChain::~swapChain(){
-    instance->m_device.destroySwapchainKHR(m_swapChain, nullptr);
+    instance->logicalDevice.destroySwapchainKHR(swapChainVK, nullptr);
 }
 
 vk::Extent2D swapChain::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) const {
@@ -60,7 +60,7 @@ void swapChain::createImageViews(){
 
         };
 
-        if (instance->m_device.createImageView(&createInfo, nullptr, &swapChainImageViews[i]) != vk::Result::eSuccess) {
+        if (instance->logicalDevice.createImageView(&createInfo, nullptr, &swapChainImageViews[i]) != vk::Result::eSuccess) {
             throw std::runtime_error("failed to create image views!");
         }
     }
@@ -105,11 +105,11 @@ void swapChain::createSwapChain() {
     createInfo.clipped = true;
     createInfo.oldSwapchain = nullptr; // implement old swap chain to render while resizing window https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation
 
-    if (instance->m_device.createSwapchainKHR(&createInfo, nullptr, &m_swapChain) != vk::Result::eSuccess) {
+    if (instance->logicalDevice.createSwapchainKHR(&createInfo, nullptr, &swapChainVK) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create swap chain!");
     }
     
-    swapChainImages = instance->m_device.getSwapchainImagesKHR(m_swapChain);
+    swapChainImages = instance->logicalDevice.getSwapchainImagesKHR(swapChainVK);
     
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
@@ -121,5 +121,5 @@ void swapChain::refresh(){
 
     
     
-    instance->m_device.destroySwapchainKHR(m_swapChain, nullptr);
+    instance->logicalDevice.destroySwapchainKHR(swapChainVK, nullptr);
 }

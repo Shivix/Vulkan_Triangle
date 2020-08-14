@@ -25,7 +25,7 @@ vulkanInstance::~vulkanInstance(){
     if (enableValidationLayers) {
         DestroyDebugUtilsMessengerEXT(m_instance, debugMessenger, nullptr);
     }
-    m_device.destroy(nullptr);
+    logicalDevice.destroy(nullptr);
     m_instance.destroySurfaceKHR(surface, nullptr);
     m_instance.destroy(nullptr);
     glfwDestroyWindow(window);
@@ -178,12 +178,12 @@ void vulkanInstance::createLogicalDevice() {
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
     }
 
-    if (physicalDevice.createDevice(&createInfo, nullptr, &m_device) != vk::Result::eSuccess) {
+    if (physicalDevice.createDevice(&createInfo, nullptr, &logicalDevice) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create logical device!");
     }
 
-    m_device.getQueue(indices.graphicsFamily.value(), 0, &graphicsQueue);
-    m_device.getQueue(indices.presentFamily.value(), 0, &presentQueue);
+    logicalDevice.getQueue(indices.graphicsFamily.value(), 0, &graphicsQueue);
+    logicalDevice.getQueue(indices.presentFamily.value(), 0, &presentQueue);
 }
 
 void vulkanInstance::createSurface(){

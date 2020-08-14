@@ -17,10 +17,10 @@ public:
     refresh(const swapChain&);
     
     vk::RenderPass renderPass{};
-    vk::Pipeline pipeline{};
+    vk::Pipeline pipelineVK{};
     vulkanInstance* instance;
 private:
-    vk::PipelineLayout pipelineLayout{};
+    vk::PipelineLayout m_pipelineLayout{};
 
     vk::ShaderModule
     createShaderModule(const std::vector<char>&) const;

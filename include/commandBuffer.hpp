@@ -17,8 +17,8 @@ public:
     vk::CommandPool commandPool{};
     std::vector<vk::CommandBuffer> commandBuffers;
 private:
-    vulkanInstance* instance;
-    graphicsPipeline* pipeline;
+    vulkanInstance* m_instance;
+    graphicsPipeline* m_pipeline;
     swapChain* m_swapChain;
     
     void

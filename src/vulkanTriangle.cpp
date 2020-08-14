@@ -2,47 +2,21 @@
 #include "../include/vulkanTriangle.hpp"
 
 vulkanTriangle::vulkanTriangle(){
-    glfwSetFramebufferSizeCallback(instance.window, framebufferResizeCallback);
+    glfwSetFramebufferSizeCallback(m_instance.window, framebufferResizeCallback);
 }
 
 vulkanTriangle::~vulkanTriangle() noexcept{
     
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        instance.m_device.destroySemaphore(renderFinishedSemaphores[i], nullptr); // TODO: poss remove with c++
-        instance.m_device.destroySemaphore(imageAvailableSemaphores[i], nullptr);
-        instance.m_device.destroyFence(inFlightFences[i], nullptr);
-    }
-    
-    for (auto imageView : p_swapChain.swapChainImageViews) {
-        instance.m_device.destroyImageView(imageView, nullptr);
-    }
-}
-
-void vulkanTriangle::createSyncObjects(){
-    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-    imagesInFlight.resize(p_swapChain.swapChainImages.size(), nullptr);
-    
-    vk::SemaphoreCreateInfo semaphoreInfo{};
-
-    vk::FenceCreateInfo fenceInfo{vk::FenceCreateFlagBits::eSignaled};
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (instance.m_device.createSemaphore(&semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != vk::Result::eSuccess ||
-            instance.m_device.createSemaphore(&semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != vk::Result::eSuccess ||
-            instance.m_device.createFence(&fenceInfo, nullptr, &inFlightFences[i]) != vk::Result::eSuccess) {
-
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
-        }
+    for (auto imageView : m_swapChain.swapChainImageViews) {
+        m_instance.logicalDevice.destroyImageView(imageView, nullptr);
     }
 }
 
 void vulkanTriangle::drawFrame(){
-    instance.m_device.waitForFences(1, &inFlightFences[currentFrame], true, UINT64_MAX);
+    m_instance.logicalDevice.waitForFences(1, &m_syncobjects.inFlightFences[m_currentFrame], true, UINT64_MAX);
     
     uint32_t imageIndex;
-    vk::Result result = instance.m_device.acquireNextImageKHR(p_swapChain.m_swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], nullptr, &imageIndex);
+    vk::Result result = m_instance.logicalDevice.acquireNextImageKHR(m_swapChain.swapChainVK, UINT64_MAX, m_syncobjects.imageAvailableSemaphores[m_currentFrame], nullptr, &imageIndex);
 
     if (result == vk::Result::eErrorOutOfDateKHR) {
         refreshSwapChain();
@@ -51,14 +25,14 @@ void vulkanTriangle::drawFrame(){
         throw std::runtime_error("failed to acquire swap chain image!");
     }
     
-    if (imagesInFlight[imageIndex] != static_cast<vk::Fence>(nullptr)) { // seems weird
-        instance.m_device.waitForFences(1, &imagesInFlight[imageIndex], true, UINT64_MAX);
+    if (m_syncobjects.imagesInFlight[imageIndex] != static_cast<vk::Fence>(nullptr)) { // seems weird
+        m_instance.logicalDevice.waitForFences(1, &m_syncobjects.imagesInFlight[imageIndex], true, UINT64_MAX);
     }
-    imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+    m_syncobjects.imagesInFlight[imageIndex] = m_syncobjects.inFlightFences[m_currentFrame];
     
-    vk::Semaphore waitSemaphores = {imageAvailableSemaphores[currentFrame]};
+    vk::Semaphore waitSemaphores = {m_syncobjects.imageAvailableSemaphores[m_currentFrame]};
     vk::PipelineStageFlags waitStages = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    vk::Semaphore signalSemaphores = renderFinishedSemaphores[currentFrame];
+    vk::Semaphore signalSemaphores = m_syncobjects.renderFinishedSemaphores[m_currentFrame];
     
     vk::SubmitInfo submitInfo{
     1,
@@ -70,9 +44,9 @@ void vulkanTriangle::drawFrame(){
     &signalSemaphores
 };
 
-    instance.m_device.resetFences(1, &inFlightFences[currentFrame]);
+    m_instance.logicalDevice.resetFences(1, &m_syncobjects.inFlightFences[m_currentFrame]);
 
-    if (instance.graphicsQueue.submit(1, &submitInfo, inFlightFences[currentFrame]) != vk::Result::eSuccess) {
+    if (m_instance.graphicsQueue.submit(1, &submitInfo, m_syncobjects.inFlightFences[m_currentFrame]) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 
@@ -80,26 +54,22 @@ void vulkanTriangle::drawFrame(){
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = &signalSemaphores;
 
-    vk::SwapchainKHR swapChains = p_swapChain.m_swapChain;
+    vk::SwapchainKHR swapChains = m_swapChain.swapChainVK;
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = &swapChains;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
-    result = instance.presentQueue.presentKHR(&presentInfo);
+    result = m_instance.presentQueue.presentKHR(&presentInfo);
 
-    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || framebufferResized) {
-        framebufferResized = false;
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || m_framebufferResized) {
+        m_framebufferResized = false;
         refreshSwapChain();
     } else if (result != vk::Result::eSuccess) {
         throw std::runtime_error("failed to present swap chain image!");
     }
 
-    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-}
-
-void vulkanTriangle::initVulkan(){ // vulkan class for raii? (vulkanInstance?)
-    createSyncObjects();
+    m_currentFrame = (m_currentFrame + 1) % m_syncobjects.MAX_FRAMES_IN_FLIGHT;
 }
 
 void vulkanTriangle::framebufferResizeCallback(GLFWwindow* window, int width, int height){
@@ -108,15 +78,14 @@ void vulkanTriangle::framebufferResizeCallback(GLFWwindow* window, int width, in
 }
 
 void vulkanTriangle::mainLoop(){
-    while (!glfwWindowShouldClose(instance.window)) {
+    while (!glfwWindowShouldClose(m_instance.window)) {
         glfwPollEvents();
         drawFrame();
     }
-    instance.m_device.waitIdle();
+    m_instance.logicalDevice.waitIdle();
 }
 
 void vulkanTriangle::run() {
-    initVulkan();
     mainLoop();
 }
 

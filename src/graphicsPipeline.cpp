@@ -8,9 +8,9 @@ instance(instance){
 }
 
 graphicsPipeline::~graphicsPipeline() noexcept{
-    instance->m_device.destroyPipeline(pipeline, nullptr);
-    instance->m_device.destroyPipelineLayout(pipelineLayout, nullptr);
-    instance->m_device.destroyRenderPass(renderPass, nullptr);
+    instance->logicalDevice.destroyPipeline(pipelineVK, nullptr);
+    instance->logicalDevice.destroyPipelineLayout(m_pipelineLayout, nullptr);
+    instance->logicalDevice.destroyRenderPass(renderPass, nullptr);
 }
 
 void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
@@ -88,7 +88,7 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
 
-    if (instance->m_device.createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout) != vk::Result::eSuccess) {
+    if (instance->logicalDevice.createPipelineLayout(&pipelineLayoutInfo, nullptr, &m_pipelineLayout) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
@@ -103,19 +103,19 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     pipelineInfo.pDepthStencilState = nullptr; // Optional
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr; // Optional
-    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.layout = m_pipelineLayout;
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = nullptr; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
     //pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 
-    if (instance->m_device.createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &pipeline) != vk::Result::eSuccess) {
+    if (instance->logicalDevice.createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &pipelineVK) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
-    instance->m_device.destroyShaderModule(fragShaderModule, nullptr); // FIXME: destroying after possible exceptions?? baaaaad
-    instance->m_device.destroyShaderModule(vertShaderModule, nullptr);
+    instance->logicalDevice.destroyShaderModule(fragShaderModule, nullptr); // FIXME: destroying after possible exceptions?? baaaaad
+    instance->logicalDevice.destroyShaderModule(vertShaderModule, nullptr);
 }
 
 void graphicsPipeline::createRenderPass(const swapChain& swapChain){
@@ -154,7 +154,7 @@ void graphicsPipeline::createRenderPass(const swapChain& swapChain){
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (instance->m_device.createRenderPass(&renderPassInfo, nullptr, &renderPass) != vk::Result::eSuccess) {
+    if (instance->logicalDevice.createRenderPass(&renderPassInfo, nullptr, &renderPass) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create render pass!");
     }
 }
@@ -165,7 +165,7 @@ vk::ShaderModule graphicsPipeline::createShaderModule(const std::vector<char>& c
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
     vk::ShaderModule shaderModule;
-    if (instance->m_device.createShaderModule(&createInfo, nullptr, &shaderModule) != vk::Result::eSuccess) {
+    if (instance->logicalDevice.createShaderModule(&createInfo, nullptr, &shaderModule) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create shader module!");
     }
     return shaderModule;
@@ -191,7 +191,7 @@ void graphicsPipeline::refresh(const swapChain& swapChain){ // TODO: refresh who
     createRenderPass(swapChain);
     createGraphicsPipeline(swapChain);
 
-    instance->m_device.destroyPipeline(pipeline, nullptr);
-    instance->m_device.destroyPipelineLayout(pipelineLayout, nullptr);
-    instance->m_device.destroyRenderPass(renderPass, nullptr);
+    instance->logicalDevice.destroyPipeline(pipelineVK, nullptr);
+    instance->logicalDevice.destroyPipelineLayout(m_pipelineLayout, nullptr);
+    instance->logicalDevice.destroyRenderPass(renderPass, nullptr);
 }
