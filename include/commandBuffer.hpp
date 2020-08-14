@@ -12,6 +12,8 @@ class commandBuffer{
 public:
     commandBuffer(vulkanInstance*, graphicsPipeline*, swapChain*);
     ~commandBuffer() noexcept;
+    commandBuffer(commandBuffer&) = default;
+    commandBuffer& operator=(commandBuffer&) = default;
     
     std::vector<vk::Framebuffer> swapChainFramebuffers;
     vk::CommandPool commandPool{};

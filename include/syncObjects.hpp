@@ -10,7 +10,9 @@ class swapChain;
 class syncObjects{
 public:
     syncObjects(vulkanInstance*, swapChain*);
-    ~syncObjects();
+    ~syncObjects() noexcept;
+    syncObjects(syncObjects&) = delete;
+    syncObjects& operator=(syncObjects&) = delete;
 
     const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
     std::vector<vk::Fence> inFlightFences;

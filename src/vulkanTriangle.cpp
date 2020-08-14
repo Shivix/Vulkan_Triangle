@@ -73,8 +73,8 @@ void vulkanTriangle::drawFrame(){
 }
 
 void vulkanTriangle::framebufferResizeCallback(GLFWwindow* window, int width, int height){
-    //auto app = reinterpret_cast<vulkanTriangle*>(glfwGetWindowUserPointer(window));
-    //app->framebufferResized = true;
+    auto app = reinterpret_cast<vulkanTriangle*>(glfwGetWindowUserPointer(window));
+    app->m_framebufferResized = true;
 }
 
 void vulkanTriangle::mainLoop(){
@@ -90,8 +90,8 @@ void vulkanTriangle::run() {
 }
 
 void vulkanTriangle::refreshSwapChain(){ // TODO: clean up is temporary
-    //instance.m_device.waitIdle();
-    //swapChain newSwapChain;
+    //m_instance.logicalDevice.waitIdle();
+    //swapChain newSwapChain(m_swapChain);
     //p_swapChain.refresh();
     //createImageViews();
     //pipeline.refresh(p_swapChain);

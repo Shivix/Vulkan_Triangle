@@ -11,7 +11,9 @@ class vulkanInstance;
 class graphicsPipeline{
 public:
     graphicsPipeline(vulkanInstance*, const swapChain&);
-    ~graphicsPipeline() noexcept; // r of 3
+    ~graphicsPipeline() noexcept;
+    graphicsPipeline(graphicsPipeline&) = default;
+    graphicsPipeline& operator=(graphicsPipeline&) = default;
     
     void 
     refresh(const swapChain&);

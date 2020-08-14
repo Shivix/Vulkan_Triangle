@@ -12,11 +12,13 @@
 #include "commandBuffer.hpp"
 #include "syncObjects.hpp"
 
-class vulkanTriangle{ // TODO: fix style TODO: go through tutorial again and add more comments TODO: rename and add another class
+class vulkanTriangle{
     
 public:
     vulkanTriangle();
-    ~vulkanTriangle() noexcept; // TODO: rule of 3
+    ~vulkanTriangle() noexcept;
+    vulkanTriangle(vulkanTriangle&) = delete;
+    vulkanTriangle& operator=(vulkanTriangle&) = delete;
 
     void run();
 
@@ -26,7 +28,7 @@ private:
     bool m_framebufferResized = false;
     
     vulkanInstance m_instance;
-    swapChain m_swapChain = swapChain(&m_instance); // TODO: rename stuff
+    swapChain m_swapChain = swapChain(&m_instance);
     graphicsPipeline m_pipeline = graphicsPipeline(&m_instance, m_swapChain);
     commandBuffer m_commandBuffer = commandBuffer(&m_instance, &m_pipeline, &m_swapChain);
     syncObjects m_syncobjects = syncObjects(&m_instance, &m_swapChain);

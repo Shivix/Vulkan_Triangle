@@ -6,7 +6,9 @@
 class swapChain{
 public:
     explicit swapChain(vulkanInstance*);
-    ~swapChain();
+    ~swapChain() noexcept;
+    swapChain(swapChain&) = default;
+    swapChain& operator=(swapChain&) = default;
 
     vulkanInstance* instance;
     vk::SwapchainKHR swapChainVK{};
