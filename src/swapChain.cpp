@@ -6,7 +6,7 @@ instance(instance){
     createImageViews();
 }
 
-swapChain::~swapChain(){
+swapChain::~swapChain() noexcept{
     instance->logicalDevice.destroySwapchainKHR(swapChainVK, nullptr);
 }
 
@@ -90,12 +90,12 @@ void swapChain::createSwapChain() {
     createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment;// can change for postprocessing
 
     vulkanInstance::QueueFamilyIndices indices = instance->findQueueFamilies(instance->physicalDevice);
-    uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()}; // FIXME:
+    auto queueFamilyIndices = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if (indices.graphicsFamily != indices.presentFamily) {
         createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
         createInfo.queueFamilyIndexCount = 2;
-        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        createInfo.pQueueFamilyIndices = queueFamilyIndices.begin();
     } else {
         createInfo.imageSharingMode = vk::SharingMode::eExclusive;
     }

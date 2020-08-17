@@ -32,7 +32,7 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     fragShaderStageInfo.pName = "main";
     vertShaderStageInfo.pSpecializationInfo = nullptr;
 
-    vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo}; //FIXME: c+_+? .data()?
+    auto shaderStages = {vertShaderStageInfo, fragShaderStageInfo}; //FIXME: c+_+? .data()?
 
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.vertexBindingDescriptionCount = 0;
@@ -80,11 +80,11 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
 
-    vk::DynamicState dynamicStates[] = {vk::DynamicState::eViewport, vk::DynamicState::eLineWidth}; //FIXME: c++?
+    auto dynamicStates = {vk::DynamicState::eViewport, vk::DynamicState::eLineWidth};
 
     vk::PipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.dynamicStateCount = 2;
-    dynamicState.pDynamicStates = dynamicStates;
+    dynamicState.pDynamicStates = dynamicStates.begin();
 
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
 
@@ -94,7 +94,7 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
 
     vk::GraphicsPipelineCreateInfo pipelineInfo{}; // TODO: own create func
     pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pStages = shaderStages.begin();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
