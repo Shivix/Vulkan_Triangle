@@ -101,7 +101,7 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
-    vk::GraphicsPipelineCreateInfo pipelineInfo{}; // TODO: own create func
+    vk::GraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shaderStages.begin();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -140,7 +140,7 @@ void graphicsPipeline::createRenderPass(const swapChain& swapChain){
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
 
-    vk::SubpassDependency dependency{}; // TODO: should be before vkCreateRenderPass or diff func? should be able to delete TODO now
+    vk::SubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
     dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
@@ -186,12 +186,7 @@ std::vector<char> graphicsPipeline::readFile(const std::string& filename){
     return buffer;
 }
 
-void graphicsPipeline::refresh(const swapChain& swapChain){ // TODO: refresh whole thing? copy constructor? then destruct
+void graphicsPipeline::refresh(const swapChain& swapChain){
 
-    createRenderPass(swapChain);
-    createGraphicsPipeline(swapChain);
-
-    instance->logicalDevice.destroyPipeline(pipelineVK, nullptr);
-    instance->logicalDevice.destroyPipelineLayout(m_pipelineLayout, nullptr);
-    instance->logicalDevice.destroyRenderPass(renderPass, nullptr);
+    
 }
