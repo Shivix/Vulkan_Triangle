@@ -80,7 +80,7 @@ void swapChain::createSwapChain() {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
 
-    vk::SwapchainCreateInfoKHR createInfo{}; // TODO: make own func
+    vk::SwapchainCreateInfoKHR createInfo{};
     createInfo.surface = instance->surface;
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;

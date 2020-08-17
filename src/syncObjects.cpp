@@ -11,7 +11,7 @@ syncObjects::syncObjects(vulkanInstance* instance, swapChain* m_swapChain):
 
 syncObjects::~syncObjects() noexcept{
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        instancePtr->logicalDevice.destroySemaphore(renderFinishedSemaphores[i], nullptr); // TODO: poss remove with c++
+        instancePtr->logicalDevice.destroySemaphore(renderFinishedSemaphores[i], nullptr);
         instancePtr->logicalDevice.destroySemaphore(imageAvailableSemaphores[i], nullptr);
         instancePtr->logicalDevice.destroyFence(inFlightFences[i], nullptr);
     }
