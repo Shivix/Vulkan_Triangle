@@ -2,12 +2,6 @@
 #define VULKANTEST_VULKANTRIANGLE_HPP
 
 #include <iostream>
-#include <stdexcept>
-#include <cstdlib>
-#include <vector>
-#include <set>
-#include <cstdint>
-#include <algorithm>
 #include "graphicsPipeline.hpp"
 #include "commandBuffer.hpp"
 #include "syncObjects.hpp"
