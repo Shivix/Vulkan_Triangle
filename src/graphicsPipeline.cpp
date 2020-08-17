@@ -17,18 +17,18 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     auto vertShaderCode = readFile("../shaders/vert.spv");
     auto fragShaderCode = readFile("../shaders/frag.spv");
 
-    vk::ShaderModule vertShaderModule = createShaderModule(vertShaderCode); // TODO: should I add a new vkShadermodule class for raii? could i use a smart ptr instead?
-    vk::ShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+    vk::UniqueShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+    vk::UniqueShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
     vk::PipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-    vertShaderStageInfo.module = vertShaderModule;
+    vertShaderStageInfo.module = vertShaderModule.get();
     vertShaderStageInfo.pName = "main";
     vertShaderStageInfo.pSpecializationInfo = nullptr; // specifies values for shader constants
 
     vk::PipelineShaderStageCreateInfo fragShaderStageInfo{};
     fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
-    fragShaderStageInfo.module = fragShaderModule;
+    fragShaderStageInfo.module = fragShaderModule.get();
     fragShaderStageInfo.pName = "main";
     vertShaderStageInfo.pSpecializationInfo = nullptr;
 
@@ -113,9 +113,6 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     if (instance->logicalDevice.createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &pipelineVK) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
-
-    instance->logicalDevice.destroyShaderModule(fragShaderModule, nullptr); // FIXME: destroying after possible exceptions?? baaaaad
-    instance->logicalDevice.destroyShaderModule(vertShaderModule, nullptr);
 }
 
 void graphicsPipeline::createRenderPass(const swapChain& swapChain){
@@ -159,15 +156,13 @@ void graphicsPipeline::createRenderPass(const swapChain& swapChain){
     }
 }
 
-vk::ShaderModule graphicsPipeline::createShaderModule(const std::vector<char>& code) const{
+vk::UniqueShaderModule graphicsPipeline::createShaderModule(const std::vector<char>& code) const{
     vk::ShaderModuleCreateInfo createInfo{};
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-    vk::ShaderModule shaderModule;
-    if (instance->logicalDevice.createShaderModule(&createInfo, nullptr, &shaderModule) != vk::Result::eSuccess) {
-        throw std::runtime_error("failed to create shader module!");
-    }
+    vk::UniqueShaderModule shaderModule = instance->logicalDevice.createShaderModuleUnique(createInfo);
+    
     return shaderModule;
 }
 

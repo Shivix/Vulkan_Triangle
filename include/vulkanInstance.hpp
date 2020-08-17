@@ -52,8 +52,8 @@ public:
     SwapChainSupportDetails
     querySwapChainSupport(vk::PhysicalDevice) const;
     
-private:
     vk::Instance m_instance{};
+private:
     
     bool
     checkDeviceExtensionSupport(vk::PhysicalDevice);

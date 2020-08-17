@@ -24,7 +24,7 @@ public:
 private:
     vk::PipelineLayout m_pipelineLayout{};
 
-    vk::ShaderModule
+    vk::UniqueShaderModule
     createShaderModule(const std::vector<char>&) const;
     static std::vector<char>
     readFile(const std::string&);
