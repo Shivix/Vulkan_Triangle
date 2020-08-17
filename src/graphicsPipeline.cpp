@@ -20,45 +20,52 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     vk::UniqueShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     vk::UniqueShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
-    vk::PipelineShaderStageCreateInfo vertShaderStageInfo{};
-    vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-    vertShaderStageInfo.module = vertShaderModule.get();
-    vertShaderStageInfo.pName = "main";
-    vertShaderStageInfo.pSpecializationInfo = nullptr; // specifies values for shader constants
+    vk::PipelineShaderStageCreateInfo vertShaderStageInfo{
+        vk::PipelineShaderStageCreateFlagBits::eAllowVaryingSubgroupSizeEXT,
+        vk::ShaderStageFlagBits::eVertex,
+        vertShaderModule.get(),
+        "main",
+        nullptr
+    };
+    vk::PipelineShaderStageCreateInfo fragShaderStageInfo{
+        vk::PipelineShaderStageCreateFlagBits::eAllowVaryingSubgroupSizeEXT,
+        vk::ShaderStageFlagBits::eFragment,
+        fragShaderModule.get(),
+        "main",
+        nullptr
+    };
+    auto shaderStages = {vertShaderStageInfo, fragShaderStageInfo};
 
-    vk::PipelineShaderStageCreateInfo fragShaderStageInfo{};
-    fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
-    fragShaderStageInfo.module = fragShaderModule.get();
-    fragShaderStageInfo.pName = "main";
-    vertShaderStageInfo.pSpecializationInfo = nullptr;
-
-    auto shaderStages = {vertShaderStageInfo, fragShaderStageInfo}; //FIXME: c+_+? .data()?
-
-    vk::PipelineVertexInputStateCreateInfo vertexInputInfo{};
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-
-    vk::PipelineInputAssemblyStateCreateInfo inputAssembly{}; // defines the kind of geometry to be drawn from vertices
-    inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
-    inputAssembly.primitiveRestartEnable = false;
-
-    vk::Viewport viewport{}; // defines the region of the framebuffer we will render to
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapChain.swapChainExtent.width);
-    viewport.height = static_cast<float>(swapChain.swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
+    vk::PipelineVertexInputStateCreateInfo vertexInputInfo{
+        vk::PipelineVertexInputStateCreateFlagBits{},
+        0,
+        nullptr,
+        0,
+        nullptr
+    };
+    vk::PipelineInputAssemblyStateCreateInfo inputAssembly{ // defines the kind of geometry to be drawn from vertices
+        vk::PipelineInputAssemblyStateCreateFlagBits{},
+        vk::PrimitiveTopology::eTriangleList,
+        false
+    };
+    vk::Viewport viewport{ // defines the region of the framebuffer we will render to
+        0.0f,
+        0.0f,
+        static_cast<float>(swapChain.swapChainExtent.width),
+        static_cast<float>(swapChain.swapChainExtent.height),
+        0.0f,
+        1.0f
+    };
     vk::Rect2D scissor{{0, 0}, swapChain.swapChainExtent}; // declares a scissor rectangle that covers the entire framebuffer
 
-    vk::PipelineViewportStateCreateInfo viewportState{}; // TODO: define each one in another func or something?
-    viewportState.viewportCount = 1;
-    viewportState.pViewports = &viewport;
-    viewportState.scissorCount = 1;
-    viewportState.pScissors = &scissor;
-
-    vk::PipelineRasterizationStateCreateInfo rasterizer{};// TODO: fill in constructor to not miss variables
+    vk::PipelineViewportStateCreateInfo viewportState{
+        vk::PipelineViewportStateCreateFlagBits{},
+        1,
+        &viewport,
+        1,
+        &scissor
+    };
+    vk::PipelineRasterizationStateCreateInfo rasterizer{};
     rasterizer.depthClampEnable = false;
     rasterizer.rasterizerDiscardEnable = false; // allows the geometry to skip the rasterizer
     rasterizer.polygonMode = vk::PolygonMode::eFill;
@@ -82,10 +89,12 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
 
     auto dynamicStates = {vk::DynamicState::eViewport, vk::DynamicState::eLineWidth};
 
-    vk::PipelineDynamicStateCreateInfo dynamicState{};
-    dynamicState.dynamicStateCount = 2;
-    dynamicState.pDynamicStates = dynamicStates.begin();
-
+    vk::PipelineDynamicStateCreateInfo dynamicState{
+        vk::PipelineDynamicStateCreateFlagBits{},
+        dynamicState.dynamicStateCount = 2,
+        dynamicState.pDynamicStates = dynamicStates.begin()
+    };
+    
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
 
     if (instance->logicalDevice.createPipelineLayout(&pipelineLayoutInfo, nullptr, &m_pipelineLayout) != vk::Result::eSuccess) {
@@ -100,14 +109,10 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pDepthStencilState = nullptr; // Optional
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.pDynamicState = nullptr; // Optional
     pipelineInfo.layout = m_pipelineLayout;
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
-    pipelineInfo.basePipelineHandle = nullptr; // Optional
-    pipelineInfo.basePipelineIndex = -1; // Optional
     //pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 
     if (instance->logicalDevice.createGraphicsPipelines(nullptr, 1, &pipelineInfo, nullptr, &pipelineVK) != vk::Result::eSuccess) {
