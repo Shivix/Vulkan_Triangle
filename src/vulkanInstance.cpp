@@ -21,7 +21,7 @@ vulkanInstance::vulkanInstance(){
     createLogicalDevice();
 }
 
-vulkanInstance::~vulkanInstance(){
+vulkanInstance::~vulkanInstance() noexcept{
     if (enableValidationLayers) {
         DestroyDebugUtilsMessengerEXT(m_instance, debugMessenger, nullptr);
     }
