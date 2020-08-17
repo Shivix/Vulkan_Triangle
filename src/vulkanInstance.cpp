@@ -85,7 +85,7 @@ vk::Result vulkanInstance::CreateDebugUtilsMessengerEXT(vk::Instance instance, c
     if (func != nullptr) {
         return static_cast<vk::Result>(func(instance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(pCreateInfo),
                                             reinterpret_cast<const VkAllocationCallbacks*>(pAllocator),
-                                            reinterpret_cast<VkDebugUtilsMessengerEXT_T**>(pDebugMessenger))); // FIXME:
+                                            reinterpret_cast<VkDebugUtilsMessengerEXT_T**>(pDebugMessenger))); // vulkan.hpp debugMessenger is funky
     } else {
         return vk::Result::eErrorExtensionNotPresent;
     }
@@ -188,12 +188,12 @@ void vulkanInstance::createLogicalDevice() {
 }
 
 void vulkanInstance::createSurface(){
-    if (static_cast<vk::Result>(glfwCreateWindowSurface(m_instance, window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface))) != vk::Result::eSuccess) { // FIXME:
+    if (glfwCreateWindowSurface(m_instance, window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS) {
         throw std::runtime_error("failed to create window surface!");
     }
 }
 
-VkBool32 vulkanInstance::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, // can name and use these variables for different debugging
+vk::Bool32 vulkanInstance::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT, // can name and use these variables for different debugging
                                        VkDebugUtilsMessageTypeFlagsEXT,
                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void*){
 
@@ -214,7 +214,7 @@ vulkanInstance::QueueFamilyIndices vulkanInstance::findQueueFamilies(vk::Physica
 
     std::vector<vk::QueueFamilyProperties> queueFamilies = device.getQueueFamilyProperties();
 
-    int i = 0; // FIXME: with C++20
+    int i = 0;
     for (const auto& queueFamily : queueFamilies) {
         if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) {
             indices.graphicsFamily = i;
@@ -282,7 +282,7 @@ void vulkanInstance::pickPhysicalDevice() {
             break;
         }
     }
-    if (physicalDevice == static_cast<vk::PhysicalDevice>(nullptr)) { // FIXME:
+    if (physicalDevice == static_cast<vk::PhysicalDevice>(nullptr)) {
         throw std::runtime_error("failed to find a suitable GPU!");
     }
 }
