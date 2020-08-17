@@ -90,20 +90,12 @@ void vulkanTriangle::run() {
 }
 
 void vulkanTriangle::refreshSwapChain(){ // TODO: clean up is temporary
-    //m_instance.logicalDevice.waitIdle();
-    //swapChain newSwapChain(m_swapChain);
+    m_instance.logicalDevice.waitIdle();
+    swapChain newSwapChain = swapChain(&m_instance);
     //p_swapChain.refresh();
-    //createImageViews();
     //pipeline.refresh(p_swapChain);
-    //createFramebuffers();
-    //createCommandBuffers();
-    //
-    //for (auto framebuffer : m_commandBuffer.swapChainFramebuffers) {
-    //    instance.m_device.destroyFramebuffer(framebuffer, nullptr);
-    //}
-    //instance.m_device.freeCommandBuffers(m_commandBuffer.commandPool, static_cast<uint32_t>(m_commandBuffer.commandBuffers.size()),
-    //                                     m_commandBuffer.commandBuffers.data());
-    //for (auto imageView : p_swapChain.swapChainImageViews) {
-    //    instance.m_device.destroyImageView(imageView, nullptr);
-    //}
+    commandBuffer newCommandBuffer = commandBuffer(&m_instance, &m_pipeline, &m_swapChain);
+    
+    m_swapChain.~swapChain();
+    m_commandBuffer.~commandBuffer();
 }
