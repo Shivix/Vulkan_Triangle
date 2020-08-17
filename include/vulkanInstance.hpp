@@ -18,7 +18,7 @@ public:
     vulkanInstance();
     ~vulkanInstance() noexcept;
     vulkanInstance(vulkanInstance&) = delete;
-    vulkanInstance& operator=(vulkanInstance&) = delete; // TODO: move semantics
+    vulkanInstance& operator=(vulkanInstance&) = delete;
 
     const uint32_t WIDTH = 800;
     const uint32_t HEIGHT = 600;
