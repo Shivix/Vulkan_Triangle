@@ -54,6 +54,7 @@ void vulkanInstance::checkExtensions(){
     for (const auto& extension : extensions) {
         std::cout << '\t' << extension.extensionName << '\n';
     }
+    std::cout << std::flush; // flushing manually else it doesnt flush till after the program has been closed in debug mode
 }
 
 bool vulkanInstance::checkValidationLayerSupport() {
