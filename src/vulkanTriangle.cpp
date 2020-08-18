@@ -15,7 +15,7 @@ vulkanTriangle::~vulkanTriangle() noexcept{
 void vulkanTriangle::drawFrame(){
     m_instance.logicalDevice.waitForFences(1, &m_syncobjects.inFlightFences[m_currentFrame], true, UINT64_MAX);
     
-    uint32_t imageIndex;
+    uint32_t imageIndex = 0;
     vk::Result result = m_instance.logicalDevice.acquireNextImageKHR(m_swapChain.swapChainVK, UINT64_MAX, m_syncobjects.imageAvailableSemaphores[m_currentFrame], nullptr, &imageIndex);
 
     if (result == vk::Result::eErrorOutOfDateKHR) {

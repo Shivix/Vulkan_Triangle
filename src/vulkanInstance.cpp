@@ -81,7 +81,7 @@ vk::Result vulkanInstance::CreateDebugUtilsMessengerEXT(vk::Instance instance, c
                                                       const vk::AllocationCallbacks* pAllocator,
                                                         vk::DebugUtilsMessengerEXT* pDebugMessenger){
     
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) instance.getProcAddr("vkCreateDebugUtilsMessengerEXT");
+    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
     if (func != nullptr) {
         return static_cast<vk::Result>(func(instance, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(pCreateInfo),
                                             reinterpret_cast<const VkAllocationCallbacks*>(pAllocator),
@@ -114,9 +114,7 @@ void vulkanInstance::createInstance(){
     }
 
     uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     createInfo.enabledExtensionCount = glfwExtensionCount;
     createInfo.ppEnabledExtensionNames = glfwExtensions;
@@ -203,7 +201,7 @@ vk::Bool32 vulkanInstance::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT,
 }
 
 void vulkanInstance::DestroyDebugUtilsMessengerEXT(vk::Instance instance, vk::DebugUtilsMessengerEXT p_debugMessenger, const vk::AllocationCallbacks* pAllocator) {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT");
+    auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
     if (func != nullptr) {
         func(instance, p_debugMessenger, reinterpret_cast<const VkAllocationCallbacks*>(pAllocator));
     }
@@ -236,10 +234,9 @@ vulkanInstance::QueueFamilyIndices vulkanInstance::findQueueFamilies(vk::Physica
 
 std::vector<const char*> vulkanInstance::getRequiredExtensions(){
     uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
     if (enableValidationLayers) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -305,7 +302,7 @@ vulkanInstance::SwapChainSupportDetails vulkanInstance::querySwapChainSupport(vk
 }
 
 void vulkanInstance::setupDebugMessenger(){
-    if (!enableValidationLayers) return;
+    if (!enableValidationLayers) {return;}
 
     vk::DebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
