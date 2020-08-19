@@ -19,7 +19,6 @@ public:
 private:
     
     std::size_t m_currentFrame = 0;
-    bool m_framebufferResized = false;
     
     vulkanInstance m_instance;
     swapChain m_swapChain = swapChain(&m_instance);
@@ -29,13 +28,10 @@ private:
     
     void 
     drawFrame();
-    static void
-    framebufferResizeCallback(GLFWwindow*, int, int);
-    
     void 
     mainLoop();
     void
-    refreshSwapChain();
+    refreshSwapChain() const;
 };
 
 #endif //VULKANTEST_VULKANTRIANGLE_HPP

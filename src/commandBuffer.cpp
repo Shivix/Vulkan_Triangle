@@ -79,7 +79,7 @@ void commandBuffer::createFramebuffers(){
         };
 
         vk::FramebufferCreateInfo framebufferInfo{
-                vk::FramebufferCreateFlags{},
+                vk::FramebufferCreateFlagBits{},
                 m_pipeline->renderPass,
                 1,      // attachment count
                 &attachments,

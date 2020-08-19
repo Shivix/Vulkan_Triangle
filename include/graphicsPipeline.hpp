@@ -15,9 +15,6 @@ public:
     graphicsPipeline(graphicsPipeline&) = default;
     graphicsPipeline& operator=(graphicsPipeline&) = default;
     
-    void 
-    refresh(const swapChain&);
-    
     vk::RenderPass renderPass{};
     vk::Pipeline pipelineVK{};
     vulkanInstance* instance;
@@ -33,9 +30,6 @@ private:
     createGraphicsPipeline(const swapChain&);
     void
     createRenderPass(const swapChain&);
-    
-    
-    
 };
 
 

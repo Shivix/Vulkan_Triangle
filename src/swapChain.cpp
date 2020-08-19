@@ -14,7 +14,7 @@ vk::Extent2D swapChain::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capab
     if (capabilities.currentExtent.width != UINT32_MAX) {
         return capabilities.currentExtent;
     } else {
-        int width, height;
+        int width = 0, height = 0;
         glfwGetFramebufferSize(instance->window, &width, &height);
         
         vk::Extent2D actualExtent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
@@ -103,7 +103,7 @@ void swapChain::createSwapChain() {
     createInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque; // states that we do not want any transformations
     createInfo.presentMode = presentMode;
     createInfo.clipped = true;
-    createInfo.oldSwapchain = nullptr; // implement old swap chain to render while resizing window https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation
+    createInfo.oldSwapchain = this->swapChainVK; // implement old swap chain to render while resizing window https://vulkan-tutorial.com/en/Drawing_a_triangle/Swap_chain_recreation
 
     if (instance->logicalDevice.createSwapchainKHR(&createInfo, nullptr, &swapChainVK) != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create swap chain!");
@@ -113,13 +113,4 @@ void swapChain::createSwapChain() {
     
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
-}
-
-void swapChain::refresh(){
-
-    createSwapChain();
-
-    
-    
-    instance->logicalDevice.destroySwapchainKHR(swapChainVK, nullptr);
 }

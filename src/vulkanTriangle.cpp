@@ -1,9 +1,7 @@
 #include <fstream>
 #include "../include/vulkanTriangle.hpp"
 
-vulkanTriangle::vulkanTriangle(){
-    glfwSetFramebufferSizeCallback(m_instance.window, framebufferResizeCallback);
-}
+vulkanTriangle::vulkanTriangle() = default;
 
 vulkanTriangle::~vulkanTriangle() noexcept{
     
@@ -62,19 +60,13 @@ void vulkanTriangle::drawFrame(){
 
     result = m_instance.presentQueue.presentKHR(&presentInfo);
 
-    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || m_framebufferResized) {
-        m_framebufferResized = false;
+    if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
         refreshSwapChain();
     } else if (result != vk::Result::eSuccess) {
         throw std::runtime_error("failed to present swap chain image!");
     }
 
     m_currentFrame = (m_currentFrame + 1) % m_syncobjects.MAX_FRAMES_IN_FLIGHT;
-}
-
-void vulkanTriangle::framebufferResizeCallback(GLFWwindow* window, int width, int height){
-    auto app = reinterpret_cast<vulkanTriangle*>(glfwGetWindowUserPointer(window));
-    app->m_framebufferResized = true;
 }
 
 void vulkanTriangle::mainLoop(){
@@ -89,13 +81,13 @@ void vulkanTriangle::run() {
     mainLoop();
 }
 
-void vulkanTriangle::refreshSwapChain(){ // TODO: clean up is temporary
-    m_instance.logicalDevice.waitIdle();
-    swapChain newSwapChain = swapChain(&m_instance);
-    //p_swapChain.refresh();
-    //pipeline.refresh(p_swapChain);
-    commandBuffer newCommandBuffer = commandBuffer(&m_instance, &m_pipeline, &m_swapChain);
+void vulkanTriangle::refreshSwapChain() const{ // TODO: clean up is temporary
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(m_instance.window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(m_instance.window, &width, &height);
+        glfwWaitEvents();
+    }
     
-    m_swapChain.~swapChain();
-    m_commandBuffer.~commandBuffer();
+    m_instance.logicalDevice.waitIdle();
 }

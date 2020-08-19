@@ -31,6 +31,7 @@ public:
     vk::Queue presentQueue{};
     const std::vector<const char*> validationLayers{"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    bool isFramebufferResized = false;
     
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
@@ -79,6 +80,8 @@ private:
                   void*);
     static void
     DestroyDebugUtilsMessengerEXT(vk::Instance, vk::DebugUtilsMessengerEXT, const vk::AllocationCallbacks*);
+    /*static void
+    framebufferResizeCallback(GLFWwindow*, int, int);*/
     [[nodiscard]] static std::vector<const char*>
     getRequiredExtensions();
     bool

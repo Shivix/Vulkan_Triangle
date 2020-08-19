@@ -9,10 +9,10 @@
 vulkanInstance::vulkanInstance(){
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // prevents from creating a OpenGL context
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // prevents resizing of window
-
+    
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
     glfwSetWindowUserPointer(window, this);
+    /*glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);*/
     
     createInstance();
     setupDebugMessenger();
@@ -231,6 +231,11 @@ vulkanInstance::QueueFamilyIndices vulkanInstance::findQueueFamilies(vk::Physica
 
     return indices;
 }
+
+/*void vulkanInstance::framebufferResizeCallback(GLFWwindow* window, int width, int height){
+    auto app = reinterpret_cast<vulkanInstance*>(glfwGetWindowUserPointer(window));
+    isFramebufferResized = true;
+}*/
 
 std::vector<const char*> vulkanInstance::getRequiredExtensions(){
     uint32_t glfwExtensionCount = 0;

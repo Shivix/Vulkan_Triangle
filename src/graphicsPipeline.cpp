@@ -185,8 +185,3 @@ std::vector<char> graphicsPipeline::readFile(const std::string& filename){
     file.close();
     return buffer;
 }
-
-void graphicsPipeline::refresh(const swapChain& swapChain){
-
-    
-}

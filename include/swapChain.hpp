@@ -27,12 +27,6 @@ public:
     createImageViews();
     void
     createSwapChain();
-    void 
-    refresh();
-    
-    
-    
-    
 };
 
 
