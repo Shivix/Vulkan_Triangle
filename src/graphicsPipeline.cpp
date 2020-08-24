@@ -17,7 +17,7 @@ void graphicsPipeline::createGraphicsPipeline(const swapChain& swapChain){
     auto vertShaderCode = readFile("../shaders/vert.spv");
     auto fragShaderCode = readFile("../shaders/frag.spv");
 
-    vk::UniqueShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+    vk::UniqueShaderModule vertShaderModule = createShaderModule(vertShaderCode); // using unique version gives automatic cleanup
     vk::UniqueShaderModule fragShaderModule = createShaderModule(fragShaderCode);
 
     vk::PipelineShaderStageCreateInfo vertShaderStageInfo{
