@@ -1,10 +1,7 @@
 #ifndef VULKANTEST_GRAPHICSPIPELINE_HPP
 #define VULKANTEST_GRAPHICSPIPELINE_HPP
 
-#include <string>
-#include <vector>
 #include "../include/swapChain.hpp"
-
 
 class vulkanInstance;
 

@@ -2,8 +2,6 @@
 #define VULKANTEST_VULKANINSTANCE_HPP
 
 #include <vulkan/vulkan.hpp>
-#include <vector>
-#include <optional>
 #include <GLFW/glfw3.h>
 
 class vulkanInstance{

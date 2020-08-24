@@ -1,7 +1,6 @@
 #ifndef VULKANTRIANGLE_SYNCOBJECTS_HPP
 #define VULKANTRIANGLE_SYNCOBJECTS_HPP
 
-#include <vector>
 #include <vulkan/vulkan.hpp>
 
 class vulkanInstance;

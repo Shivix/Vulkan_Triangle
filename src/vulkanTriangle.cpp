@@ -1,4 +1,3 @@
-#include <fstream>
 #include "../include/vulkanTriangle.hpp"
 
 vulkanTriangle::vulkanTriangle() = default;

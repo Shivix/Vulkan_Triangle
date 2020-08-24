@@ -1,7 +1,6 @@
 #ifndef VULKANTEST_VULKANTRIANGLE_HPP
 #define VULKANTEST_VULKANTRIANGLE_HPP
 
-#include <iostream>
 #include "graphicsPipeline.hpp"
 #include "commandBuffer.hpp"
 #include "syncObjects.hpp"

@@ -2,7 +2,6 @@
 #define VULKANTRIANGLE_COMMANDBUFFER_HPP
 
 #include <vulkan/vulkan.hpp>
-#include <vector>
 
 class vulkanInstance;
 class graphicsPipeline;

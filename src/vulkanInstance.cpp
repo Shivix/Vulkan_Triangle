@@ -1,7 +1,7 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnreachableCode"
 #pragma ide diagnostic ignored "Simplify"
-#include <stdexcept>
+
 #include <set>
 #include <iostream>
 #include "../include/vulkanInstance.hpp"
