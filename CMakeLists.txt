@@ -29,6 +29,9 @@ include_directories(${Vulkan_INCLUDE_DIRS})
 add_executable(vulkanTriangle ${SRC} ${INCLUDE})
 
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
-
-target_link_libraries(vulkanTriangle "C:/MinGW/lib/libglfw3.a")
+if(WIN32)
+    target_link_libraries(vulkanTriangle "C:/MinGW/lib/libglfw3.a")
+else()
+    target_link_libraries(vulkanTriangle glfw)
+endif()
 target_link_libraries(vulkanTriangle ${Vulkan_LIBRARY})
